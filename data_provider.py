@@ -53,7 +53,8 @@ def trimap(mask, mode='mask', boundary_width=50,
     return trimap_sum
 
 
-def provide(txt_path, images_fg_dir=None, images_bg_dir=None):
+def provide(txt_path, images_fg_dir=None, images_bg_dir=None, 
+            trimaps_dir=None):
     """Returns the paths of images.
     
     Args:
@@ -65,6 +66,7 @@ def provide(txt_path, images_fg_dir=None, images_bg_dir=None):
             images.
         images_fg_dir: Path to the foreground images directory.
         images_bg_dir: Path to the background images directory.
+        trimaps_dir: Path to the trimaps directory.
         
     Returns:
         The paths of foreground and background images.
@@ -78,12 +80,16 @@ def provide(txt_path, images_fg_dir=None, images_bg_dir=None):
     if images_fg_dir is None and images_bg_dir is None:
         return txt_content
     image_paths = []
-    for image_fg_rel_path, image_bg_rel_path in txt_content:
+    for image_fg_rel_path, image_bg_rel_path, trimap_rel_path in txt_content:
         image_fg_abs_path = image_fg_rel_path
         image_bg_abs_path = image_bg_rel_path
+        trimap_abs_path = trimap_rel_path
         if images_fg_dir is not None:
             image_fg_abs_path = os.path.join(images_fg_dir, image_fg_rel_path)
         if images_bg_dir is not None:
             image_bg_abs_path = os.path.join(images_bg_dir, image_bg_rel_path)
-        image_paths.append([image_fg_abs_path, image_bg_abs_path])
+        if trimaps_dir is not None:
+            trimap_abs_path = os.path.join(trimaps_dir, trimap_rel_path)
+        image_paths.append([image_fg_abs_path, image_bg_abs_path,
+                            trimap_abs_path])
     return image_paths

@@ -32,6 +32,9 @@ flags.DEFINE_string('images_fg_dir',
 flags.DEFINE_string('images_bg_dir', 
                     './datasets/images_bg',
                     'Path to images (directory).')
+flags.DEFINE_string('trimaps_dir', 
+                    './datasets/trimaps',
+                    'Path to images (directory).')
 flags.DEFINE_string('annotation_path', 
                     './datasets/images_correspondence.txt',
                     'Path to fg_bg_mapping`s .txt file.')
@@ -63,14 +66,16 @@ def float_list_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
-def create_tf_example(image_fg_path, image_bg_path, resize_size=None):
+def create_tf_example(image_fg_path, image_bg_path, trimap_path,
+                      resize_size=None):
     image_fg = cv2.imread(image_fg_path, -1)
     if image_fg is None:
         print(image_fg_path)
         return None
     #image_fg = cv2.imdecode(np.fromfile(image_fg_path, dtype=np.uint8), -1)
     alpha = data_provider.alpha_matte(image_fg)
-    trimap_b = data_provider.trimap(alpha)
+    trimap = cv2.imread(trimap_path, 0)
+    trimap_b = data_provider.trimap(trimap)
     image_fg = image_fg[:, :, :3]
     image_bg = cv2.imread(image_bg_path)
     
@@ -123,7 +128,7 @@ def create_tf_example(image_fg_path, image_bg_path, resize_size=None):
 def generate_tfrecord(image_paths, output_path, resize_size=None):
     num_valid_tf_example = 0
     writer = tf.python_io.TFRecordWriter(output_path)
-    for image_fg_path, image_bg_path in image_paths:
+    for image_fg_path, image_bg_path, trimap_path in image_paths:
         if not tf.gfile.GFile(image_fg_path):
             print('%s does not exist.' % image_fg_path)
             continue
@@ -131,7 +136,7 @@ def generate_tfrecord(image_paths, output_path, resize_size=None):
             print('%s does not exist.' % image_bg_path)
             continue
         tf_example = create_tf_example(image_fg_path, image_bg_path, 
-                                       resize_size)
+                                       trimap_path, resize_size)
         if tf_example is None:
             continue
         writer.write(tf_example.SerializeToString())
@@ -149,12 +154,13 @@ def generate_tfrecord(image_paths, output_path, resize_size=None):
 def main(_):
     images_fg_dir = FLAGS.images_fg_dir
     images_bg_dir = FLAGS.images_bg_dir
+    trimaps_dir = FLAGS.trimaps_dir
     annotation_path = FLAGS.annotation_path
     record_path = FLAGS.output_path
     resize_size = FLAGS.resize_side_size
     
     image_paths = data_provider.provide(annotation_path, images_fg_dir,
-                                        images_bg_dir)
+                                        images_bg_dir, trimaps_dir)
     
     generate_tfrecord(image_paths, record_path, resize_size)
     
