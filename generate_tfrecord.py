@@ -27,16 +27,16 @@ import data_provider
 flags = tf.app.flags
 
 flags.DEFINE_string('images_fg_dir', 
-                    '/data2/raycloud/matting_resize',
+                    './datasets/images',
                     'Path to images (directory).')
 flags.DEFINE_string('images_bg_dir', 
-                    '/data2/raycloud/matting_bg',
+                    './datasets/images_bg',
                     'Path to images (directory).')
 flags.DEFINE_string('annotation_path', 
-                    '/data2/raycloud/deep_image_matting/fg_bg_mapping.txt',
+                    './datasets/images_correspondence.txt',
                     'Path to fg_bg_mapping`s .txt file.')
 flags.DEFINE_string('output_path', 
-                    '/data2/raycloud/deep_image_matting/train_boundary.record',
+                    './datasets/train.record',
                     'Path to output tfrecord file.')
 flags.DEFINE_integer('resize_side_size', 320, 'Resize images to fixed size.')
 

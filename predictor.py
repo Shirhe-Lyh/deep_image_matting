@@ -5,13 +5,8 @@ Created on Thu Oct 11 11:49:09 2018
 @author: shirhe-lyh
 """
 
-import cv2
-import numpy as np
 import os
 import tensorflow as tf
-import urllib
-
-#from timeit import default_timer as timer
 
 
 class Predictor(object):
@@ -33,9 +28,9 @@ class Predictor(object):
         self._graph, self._sess = self._load_model(frozen_inference_graph_path)
         self._images = self._graph.get_tensor_by_name('image_tensor:0')
         self._trimaps = self._graph.get_tensor_by_name('trimap_tensor:0')
-        self._alpha_mattes = self._graph.get_tensor_by_name('alpha_matte_1:0')
+        self._alpha_mattes = self._graph.get_tensor_by_name('alpha_matte:0')
         self._refined_alpha_mattes = self._graph.get_tensor_by_name(
-            'refined_alpha_matte_1:0')
+            'refined_alpha_matte:0')
         
     def _load_model(self, frozen_inference_graph_path):
         """Load a (frozen) Tensorflow model into memory.
@@ -57,7 +52,7 @@ class Predictor(object):
         if self._gpu_index is not None:
             if not isinstance(self._gpu_index, str):
                 self._gpu_index = str(self._gpu_index)
-            os.environ["CUDA_VISIBLE_DEVICES"] = self._gpu_index
+            os.environ['CUDA_VISIBLE_DEVICES'] = self._gpu_index
         if self._gpu_memory_fraction is None:
             self._gpu_memory_fraction = 1.0
             
@@ -70,7 +65,8 @@ class Predictor(object):
                 tf.import_graph_def(od_graph_def, name='')
             
         config = tf.ConfigProto(allow_soft_placement = True) 
-        config.gpu_options.per_process_gpu_memory_fraction = 0.50
+        config.gpu_options.per_process_gpu_memory_fraction = (
+            self._gpu_memory_fraction)
         sess = tf.Session(graph=graph, config=config)
         return graph, sess
         
@@ -89,72 +85,4 @@ class Predictor(object):
             [self._alpha_mattes, self._refined_alpha_mattes], 
             feed_dict=feed_dict)
         return alpha_mattes, refined_alpha_mattes
-    
-#    def predict_from_urls(self, image_urls=None):
-#        """Predict prediction tensors from image urls.
-#        
-#        Args:
-#            image_urls: A list containing image urls.
-#            
-#        Returns:
-#            classes_dict: A dictionary containing class labels for each image.
-#            
-#        Raises:
-#            ValueError: If image_urls is None.
-#        """
-##        t_start_download = timer()
-#        images_dict = download_images(image_urls)
-##        t_end_download = timer()
-##        print('download image time: ', t_end_download - t_start_download)
-#        
-#        classes_dict = {}
-#        valid_image_urls = []
-#        valid_images = []
-#        for image_url, image in images_dict.items():
-#            if image is None:
-#                classes_dict[image_url] = []
-#                continue
-#            valid_image_urls.append(image_url)
-#            valid_images.append(image)
-#        if not valid_images:
-#            return classes_dict
-#        
-##        t_start_predict = timer()
-#        valid_classes = self.predict(valid_images)
-##        print('predict time: ', timer() - t_start_predict)
-#        for image_url, class_label in zip(valid_image_urls, valid_classes):
-#            classes_dict[image_url] = [int(class_label)]
-#        return classes_dict
-#    
-#    
-#def download_images(image_urls=None):
-#    """Download images.
-#    
-#    Args:
-#        image_urls: A list containing image urls.
-#        
-#    Returns:
-#        images_dict: A dictionary representing a batch of images.
-#        
-#    Raises:
-#        ValueError: If image_urls is None.
-#    """
-#    if image_urls is None:
-#        raise ValueError('`image_urls` must be specified.')
-#        
-#    images_dict = {}
-#    for image_url in image_urls:
-#        try:
-#            # For python2
-##            req_image_url = urllib.urlopen(image_url)
-#            # For python3
-#            req_image_url = urllib.request.urlopen(image_url)
-#        except:
-#            print(image_url + ' does not exist.')
-#            images_dict[image_url] = None
-#            continue
-#        image = np.asarray(bytearray(req_image_url.read()), dtype='uint8')
-#        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-#        images_dict[image_url] = image
-#    return images_dict
         
