@@ -83,9 +83,9 @@ if __name__ == '__main__':
     trimap_trivial = trimap(alpha, mode='trivial')
     
     cv2.imshow('image', image)
-    cv2.imshow('alpha', alpha * 255)
-    cv2.imshow('trimap', trimap_random.astype(np.uint8))
-    cv2.imshow('trimap_trivial', trimap_trivial)
+    #cv2.imshow('alpha', alpha * 255)
+    #cv2.imshow('trimap', trimap_random.astype(np.uint8))
+    #cv2.imshow('trimap_trivial', trimap_trivial)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

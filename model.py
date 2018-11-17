@@ -179,7 +179,7 @@ class Model(object):
         # Predict alpha matte
         alpha_matte = slim.conv2d(net, num_outputs=1, kernel_size=[5, 5],
                                   activation_fn=tf.nn.sigmoid,
-                                  scope='alpha_matte')
+                                  scope='AlphaMatte')
 
         # The inputs for second stage
         alpha_matte_scaled = tf.multiply(alpha_matte, 255.)
@@ -198,7 +198,7 @@ class Model(object):
         refined_alpha_matte = slim.conv2d(net, num_outputs=1, 
                                           kernel_size=[3, 3],
                                           activation_fn=tf.nn.sigmoid,
-                                          scope='refined_alpha_matte')
+                                          scope='RefinedAlphaMatte')
         
         prediction_dict = {'alpha_matte': alpha_matte,
                            'refined_alpha_matte': refined_alpha_matte,
@@ -217,7 +217,7 @@ class Model(object):
             A dictionary containing the postprocessed results.
         """
         alpha_matte = prediction_dict.get('alpha_matte')
-        refined_alpha_matte = prediction_dict.get('refined_alpha_matte')
+        refined_alpha_matte = prediction_dict.get('pred_refined_alpha_matte')
         if use_trimap:
             trimaps = prediction_dict.get('trimaps')
             alpha_matte = tf.where(tf.equal(trimaps, 128), alpha_matte,

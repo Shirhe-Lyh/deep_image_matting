@@ -19,7 +19,6 @@ python3 train.py \
 
 import cv2
 import io
-import numpy as np
 import PIL.Image
 import tensorflow as tf
 
