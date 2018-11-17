@@ -14,6 +14,20 @@ import tensorflow as tf
 
 from object_detection.utils import ops as utils_ops
 
+flags = tf.app.flags
+
+flags.DEFINE_string('images_dir', 
+                    './datasets/images',
+                    'Path to images directory.')
+flags.DEFINE_string('output_dir', 
+                    './datasets/trimaps', 
+                    'Path to the output trimap`s directory.')
+flags.DEFINE_string('frozen_inference_graph_path', 
+                    None, 
+                    'Path to the inference grpah .pb file.')
+
+FLAGS = flags.FLAGS
+
 
 class Predictor(object):
     """Predict mask."""
@@ -115,12 +129,9 @@ class Predictor(object):
         
         
 if __name__ == '__main__':
-    images_dir = ('./datasets/images')
-    output_dir = ('./datasets/trimaps')
-    frozen_inference_graph_path = ('/home/shirhe-lyh/python_project/' +
-                                   'mask_rcnn_customized/training/' +
-                                   'frozen_inference_graph_pb/' +
-                                   'frozen_inference_graph.pb')
+    images_dir = FLAGS.images_dir
+    output_dir = FLAGS.output_dir
+    frozen_inference_graph_path = FLAGS.frozen_inference_graph_path
       
     mask_predictor = Predictor(frozen_inference_graph_path)
     
