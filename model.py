@@ -41,14 +41,18 @@ class Model(object):
         Outputs of this function can be passed to loss or postprocess functions.
         
         Args:
+            trimaps: A float32 tensor with shape [batch_size,
+                height, width, 1] representing a batch of trimaps.
+            images: A float32 tensor with shape [batch_size, height, width,
+                3] representing a batch of images. Only passed values in case
+                of test (i.e., in training case images=None).
             images_foreground: A float32 tensor with shape [batch_size,
                 height, width, 3] representing a batch of foreground images.
             images_background: A float32 tensor with shape [batch_size,
                 height, width, 3] representing a batch of background images.
-            masks: A float32 tensor with shape [batch_size,
-                height, width, 1] representing a batch of masks.
-            trimaps: A float32 tensor with shape [batch_size,
-                height, width, 1] representing a batch of trimaps.
+            alpha_mattes: A float32 tensor with shape [batch_size,
+                height, width, 1] representing a batch of groundtruth masks.
+            
             
         Returns:
             The preprocessed tensors.
@@ -107,22 +111,15 @@ class Model(object):
         Outputs of this function can be passed to loss or postprocess functions.
         
         Args:
-            preprocessed_images: A float32 tensor with shape [batch_size,
-                height, width, 3] representing a batch of images.
-            preprocessed_trimaps: A float32 tensor with shape [batch_size,
-                height, widht, 1] representing a batch of trimaps.
+            preprocessed_dict: See The preprocess function.
             
         Returns:
             prediction_dict: A dictionary holding prediction tensors to be
                 passed to the Loss or Postprocess functions.
         """
-        # The inputs for first stage
+        # The inputs for the first stage
         preprocessed_images = preprocessed_dict.get('images')
         preprocessed_trimaps = preprocessed_dict.get('trimaps')
-#        preprocessed_inputs = tf.concat(
-#            values=[preprocessed_images, preprocessed_trimaps], axis=3)
-#        preprocessed_inputs.set_shape([None, self._default_image_size,
-#                                       self._default_image_size, 4])
         
         # VGG-16
         _, endpoints = nets.vgg.vgg_16(preprocessed_images,
@@ -181,7 +178,7 @@ class Model(object):
                                   activation_fn=tf.nn.sigmoid,
                                   scope='AlphaMatte')
 
-        # The inputs for second stage
+        # The inputs for the second stage
         alpha_matte_scaled = tf.multiply(alpha_matte, 255.)
         refine_inputs = tf.concat(
             values=[preprocessed_images, alpha_matte_scaled], axis=3)
