@@ -214,7 +214,7 @@ class Model(object):
             A dictionary containing the postprocessed results.
         """
         alpha_matte = prediction_dict.get('alpha_matte')
-        refined_alpha_matte = prediction_dict.get('pred_refined_alpha_matte')
+        refined_alpha_matte = prediction_dict.get('refined_alpha_matte')
         if use_trimap:
             trimaps = prediction_dict.get('trimaps')
             alpha_matte = tf.where(tf.equal(trimaps, 128), alpha_matte,
