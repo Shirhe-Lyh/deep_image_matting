@@ -16,10 +16,8 @@ def alpha_matte(image):
         alpha = image[:, :, 3]
         alpha = np.where(alpha > 0, 1, 0)
     else:
-        alpha = np.ones(image.shape[:2])
-        diff_values = 255 - image
-        diff_value = np.sum(np.abs(diff_values), axis=2)
-        alpha = np.where(diff_value > 0, alpha, 0)
+        reduced_image = np.sum(np.abs(255 - image), axis=2)
+        alpha = np.where(reduced_image > 100, 1, 0)
     alpha = alpha.astype(np.uint8)
     return alpha
 
